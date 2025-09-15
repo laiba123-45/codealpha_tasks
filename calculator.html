@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Calculator</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .calculator {
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            width: 300px;
+        }
+
+        .display {
+            background-color: #222;
+            color: #fff;
+            font-size: 2.5em;
+            text-align: right;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: #555;
+            color: #fff;
+            border: none;
+            padding: 20px;
+            font-size: 1.5em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn:hover {
+            background-color: #777;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .operator {
+            background-color: #ff9500;
+        }
+
+        .operator:hover {
+            background-color: #ffaa33;
+        }
+
+        .equal {
+            background-color: #4cd964;
+            grid-column: span 2;
+        }
+
+        .equal:hover {
+            background-color: #66cc7a;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="display" id="display">0</div>
+        <div class="buttons">
+            <button class="btn" onclick="clearDisplay()">C</button>
+            <button class="btn operator" onclick="appendInput('/')">÷</button>
+            <button class="btn operator" onclick="appendInput('*')">×</button>
+            <button class="btn operator" onclick="appendInput('-')">−</button>
+            <button class="btn" onclick="appendInput('7')">7</button>
+            <button class="btn" onclick="appendInput('8')">8</button>
+            <button class="btn" onclick="appendInput('9')">9</button>
+            <button class="btn operator" onclick="appendInput('+')">+</button>
+            <button class="btn" onclick="appendInput('4')">4</button>
+            <button class="btn" onclick="appendInput('5')">5</button>
+            <button class="btn" onclick="appendInput('6')">6</button>
+            <button class="btn operator" onclick="calculateResult()">=</button>
+            <button class="btn" onclick="appendInput('1')">1</button>
+            <button class="btn" onclick="appendInput('2')">2</button>
+            <button class="btn" onclick="appendInput('3')">3</button>
+            <button class="btn" onclick="appendInput('0')">0</button>
+            <button class="btn" onclick="appendInput('.')">.</button>
+        </div>
+    </div>
+
+    <script>
+        const display = document.getElementById('display');
+        let currentInput = '';
+        let resultDisplayed = false;
+
+        function appendInput(value) {
+            if (resultDisplayed) {
+                currentInput = '';
+                resultDisplayed = false;
+            }
+            if (value === '+' || value === '-' || value === '*' || value === '/') {
+                if (currentInput.length > 0 && isNaN(currentInput.slice(-1))) {
+                    // Replace the last operator if a new one is clicked
+                    currentInput = currentInput.slice(0, -1) + value;
+                } else if (currentInput.length > 0) {
+                    currentInput += value;
+                }
+            } else {
+                currentInput += value;
+            }
+            display.textContent = currentInput || '0';
+        }
+
+        function clearDisplay() {
+            currentInput = '';
+            display.textContent = '0';
+            resultDisplayed = false;
+        }
+
+        function calculateResult() {
+            if (currentInput) {
+                try {
+                    // Replace '×' and '÷' for JavaScript evaluation
+                    let expression = currentInput.replace(/×/g, '*').replace(/÷/g, '/');
+                    let result = eval(expression);
+                    display.textContent = result;
+                    currentInput = result.toString();
+                    resultDisplayed = true;
+                } catch (error) {
+                    display.textContent = 'Error';
+                    currentInput = '';
+                    resultDisplayed = true;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
