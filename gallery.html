@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Image Gallery</title>
+    <style>
+        /* General body and container styles */
+        body {
+            font-family: sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 0.5em;
+        }
+
+        p {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 2em;
+        }
+
+        /* Styles for filter buttons */
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            border-radius: 25px;
+            background-color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .filter-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .filter-btn.active {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+        }
+
+        /* Styles for the image grid */
+        .image-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .grid-img {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease-in-out;
+            cursor: pointer;
+        }
+
+        .grid-img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Styles for the lightbox (full-screen view) */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .lightbox.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .lightbox-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .lightbox-image {
+            max-width: 80vw;
+            max-height: 80vh;
+            border-radius: 8px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .lightbox-nav {
+            font-size: 50px;
+            color: #fff;
+            cursor: pointer;
+            padding: 20px;
+        }
+
+        /* Media queries for responsiveness */
+        @media (max-width: 768px) {
+            .grid-img {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Main Gallery Container -->
+    <div class="container">
+        <h1>Simple Image Gallery</h1>
+        <p>A collection of beautiful images.</p>
+        
+        <!-- Filter Buttons -->
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="nature">Nature</button>
+            <button class="filter-btn" data-filter="city">City</button>
+            <button class="filter-btn" data-filter="abstract">Abstract</button>
+        </div>
+
+        <!-- Image Grid -->
+        <div id="image-grid" class="image-grid">
+            <!-- Images will be created here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox">
+        <span class="lightbox-close">&times;</span>
+        <div class="lightbox-content">
+            <span id="prev-btn" class="lightbox-nav">&lt;</span>
+            <img id="lightbox-image" src="" alt="Full size image" class="lightbox-image">
+            <span id="next-btn" class="lightbox-nav">&gt;</span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get all the necessary HTML elements
+            const imageGrid = document.getElementById('image-grid');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImage = document.getElementById('lightbox-image');
+            const lightboxClose = document.querySelector('.lightbox-close');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+
+            let currentImageIndex = 0;
+            let currentFilteredImages = [];
+
+            // A list of images with their details
+            const images = [
+                { url: "/photos/nature1.jpg", category: "nature" },
+                { url: "/photos/city1.jpg", category: "city" },
+                { url: "/photos/people1.jpg", category: "abstract" },
+                { url: "/photos/nature2.jpg", category: "nature" },
+                { url: "/photos/city2.jpg", category: "city" },
+                { url: "/photos/people2.jpg", category: "abstract" },
+                { url: "/photos/nature3.jpg", category: "nature" },
+                { url: "/photos/city3.jpg", category: "city" },
+
+
+                { url: "/photos/nature6.jpg", category: "nature" },
+                { url: "/photos/city4.jpg", category: "city" },
+                { url: "/photos/people3.jpg", category: "abstract" },
+                { url: "/photos/love.jpg", category: "nature" },
+                { url: "/photos/city5.jpg", category: "city" },
+                { url: "/photos/people4.jpg", category: "abstract" },
+                { url: "/photos/love2.jpg", category: "nature" },
+                { url: "/photos/city6.jpg", category: "city" },
+
+                 { url: "/photos/love3.jpg", category: "nature" },
+                { url: "/photos/love7.jpg", category: "city" },
+                { url: "/photos/people5.jpg", category: "abstract" },
+                { url: "/photos/love4.jpg", category: "nature" },
+                { url: "/photos/city7.jpg", category: "city" },
+                { url: "/photos/people6.jpg", category: "abstract" },
+                { url: "/photos/love5.jpg", category: "nature" },
+                { url: "/photos/love6.jpg", category: "city" },
+
+            ];
+
+            // This function creates and adds images to the gallery grid
+            function renderImages(filter) {
+                // First, empty the grid
+                imageGrid.innerHTML = '';
+                
+                // Decide which images to show based on the filter
+                currentFilteredImages = (filter === 'all') ? images : images.filter(img => img.category === filter);
+
+                // For each image, create an HTML element and add it to the grid
+                currentFilteredImages.forEach((img, index) => {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = img.url;
+                    imgElement.alt = `Image ${index + 1}`;
+                    imgElement.classList.add('grid-img');
+                    
+                    // When an image is clicked, show the full-size view
+                    imgElement.addEventListener('click', () => {
+                        openLightbox(index);
+                    });
+                    
+                    imageGrid.appendChild(imgElement);
+                });
+            }
+
+            // This function opens the lightbox to show a full-size image
+            function openLightbox(index) {
+                currentImageIndex = index;
+                const img = currentFilteredImages[currentImageIndex];
+                
+                lightboxImage.src = img.url;
+                lightbox.classList.add('show');
+                // Optional: To prevent scrolling on the body while the lightbox is open
+                document.body.style.overflow = 'hidden'; 
+            }
+
+            // This function closes the lightbox
+            function closeLightbox() {
+                lightbox.classList.remove('show');
+                document.body.style.overflow = ''; // Restore scrolling
+            }
+
+            // This function shows the next image in the filtered list
+            function showNextImage() {
+                currentImageIndex = (currentImageIndex + 1) % currentFilteredImages.length;
+                openLightbox(currentImageIndex);
+            }
+
+            // This function shows the previous image in the filtered list
+            function showPrevImage() {
+                currentImageIndex = (currentImageIndex - 1 + currentFilteredImages.length) % currentFilteredImages.length;
+                openLightbox(currentImageIndex);
+            }
+
+            // Event listeners for the filter buttons
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update which button is "active"
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    const filter = btn.getAttribute('data-filter');
+                    renderImages(filter);
+                });
+            });
+
+            // Event listeners for the lightbox controls
+            lightboxClose.addEventListener('click', closeLightbox);
+            prevBtn.addEventListener('click', showPrevImage);
+            nextBtn.addEventListener('click', showNextImage);
+
+            // Close the lightbox if the background is clicked
+            lightbox.addEventListener('click', (e) => {
+                if (e.target.id === 'lightbox') {
+                    closeLightbox();
+                }
+            });
+
+            // Initial rendering of all images when the page loads
+            renderImages('all');
+        });
+    </script>
+
+</body>
+</html>
